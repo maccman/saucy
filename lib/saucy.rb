@@ -5,4 +5,3 @@ end
 
 require "saucy_render"
 require "saucy_helper"
-

@@ -28,11 +28,7 @@ module Saucy
         Saucy::Render.saucy_render(content, style, filename)
       end
       
-      options[:style] ||= ""
-      options[:style] = "text-indent:-5000px;" + options[:style]
-      
-      transparent = style[:background] == nil || style[:background] == "transparent"
-      saucy_png_tag(filename, name, content, options, transparent)
+
     end
     
     # Arguments:
@@ -40,9 +36,24 @@ module Saucy
     # saucy_tag(name1, name2, :option2 => 'foo', :hover => {:color => 'blue'})
     
     def saucy_tag(*args)
-      options = args.extract_options!
-      texts   = args
+      options   = args.extract_options!
+      texts     = args
+      filename  = [
+          texts.collect(&:underscore), 
+          Digest::MD5.hexdigest(options.to_s)
+      ].flatten.join('_')
       
+      unless File.exists?(File.join(AB_OUTPUT_DIR, filename))
+         Saucy::Render.render(texts, options)
+      end
+      
+      style ||= {}
+      style['text-indent'] = '-5000px;'
+      
+      
+      trans = !style.has_key?('background') || style['background'] == "transparent"
+      
+      # todo - draw tag
     end
 
   end
