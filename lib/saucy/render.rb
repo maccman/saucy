@@ -1,5 +1,6 @@
 require "RMagick" 
 require 'rvg/rvg'
+require 'fileutils'
 
 module Saucy
   class Render
@@ -55,6 +56,7 @@ module Saucy
       # end
       
       images.append(true) # append vertically
+      FileUtils.mkdir_p(File.join(ABS_OUTPUT_DIR, filename))
       images.write(File.join(ABS_OUTPUT_DIR, filename))
     end
     
