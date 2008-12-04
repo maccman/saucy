@@ -19,17 +19,6 @@ module Saucy
 
       content_tag_string(name, content, options)
     end
-
-    def saucy_tag(name, content, style={}, options = {})
-      key = Digest::MD5.hexdigest(style.to_s)
-      filename = File.join(OUTPUT_DIR, content.gsub(/[^a-z0-9]+/i, '-') + "_#{key}.png")
-      
-      unless Rails.cache.read("saucy:" + filename)
-        Saucy::Render.saucy_render(content, style, filename)
-      end
-      
-
-    end
     
     # Arguments:
     # saucy_tag(name, :option1 => 'foo')
@@ -39,12 +28,12 @@ module Saucy
       options   = args.extract_options!
       texts     = args
       filename  = [
-          texts.collect(&:underscore), 
-          Digest::MD5.hexdigest(options.to_s)
+          Digest::MD5.hexdigest(texts.to_s + options.to_s),
+          texts.collect(&:underscore)
       ].flatten.join('_')
       
       unless File.exists?(File.join(AB_OUTPUT_DIR, filename))
-         Saucy::Render.render(texts, options)
+         Saucy::Render.render(texts, filename, options)
       end
       
       style ||= {}

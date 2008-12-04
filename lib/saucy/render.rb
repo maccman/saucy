@@ -13,10 +13,10 @@ module Saucy
         :font     => "arial", 
         :stretch  => "normal"
       },
-      :stroke     => {
-        :width => 0, 
-        :color => "#000", 
-        :inner => true 
+      :stroke => {
+        :width    => 0, 
+        :color    => "#000", 
+        :inner    => true 
       },
       :shadow     => {
         :color    => "#000", 
@@ -28,30 +28,34 @@ module Saucy
       },
       :rotate     => 0,
       :spacing    => {
-        :letter => 0, 
-        :word => 0
+        :letter   => 0, 
+        :word     => 0
       }
     }
-
-    def render(text, style, filename)
+    
+    def render(texts, filename, options)
       style = DEFAULT_STYLE.merge(style)    
       
-      image = draw(text,  
-                   DEFAULT_STYLE[:font].merge(style[:font]), 
-                   style[:background] || DEFAULT_STYLE[:background], 
-                   DEFAULT_STYLE[:stroke].merge(style[:stroke]),
-                   DEFAULT_STYLE[:spacing].merge(style[:spacing])
-               )
-
-      if style[:shadow] && style[:shadow][:render]
-        image = shadow_render(image, DEFAULT_STYLE[:shadow].merge(style[:shadow]) )
+      images = Magick::ImageList.new
+      texts.each do |text|
+        images << draw(text,  
+                     DEFAULT_STYLE[:font].merge(style[:font]), 
+                     style[:background] || DEFAULT_STYLE[:background], 
+                     DEFAULT_STYLE[:stroke].merge(style[:stroke]),
+                     DEFAULT_STYLE[:spacing].merge(style[:spacing])
+                  )
       end
-
-      if style[:rotate] != 0
-        image = rotate_render(image, style[:rotate]) 
-      end
-
-      image.write(File.join(Rails.public_path, filename))
+      
+      # if style[:shadow] && style[:shadow][:render]
+      #   images << shadow_render(image, DEFAULT_STYLE[:shadow].merge(style[:shadow]) )
+      # end
+      # 
+      # if style[:rotate] != 0
+      #   images << rotate_render(image, style[:rotate]) 
+      # end
+      
+      images.append(true) # append vertically
+      images.write(File.join(ABS_OUTPUT_DIR, filename))
     end
     
     def draw(text, font, background, stroke, spacing)
