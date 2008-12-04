@@ -29,11 +29,6 @@ module Saucy
       style['width']      = "#{size[0]}px"
       style['height']     = "#{real_height}px"
       
-      if options[:transparent]
-        style['_background']    = 'transparent';
-        style['_filter:progid'] = "DXImageTransform.Microsoft.AlphaImageLoader(src=#{src}, sizingMethod='crop')"
-      end
-      
       options[:html][:class] << 'saucy'
       if options[:hover]
         options[:html][:class] << 'saucySprite'
@@ -43,7 +38,12 @@ module Saucy
       # A's need to be display:block for text-indent to work
       options[:html][:style]['display'] = 'block'
       
-      options[:html][:style] = style.collect {|key, value| [key, value].join(':') }.join(';')
+      options[:html][:style] = style.collect {|key, value| [key, value].join(':') }.join(';') + ';'
+      if options[:transparent]
+        options[:html][:style] << "_background:transparent;"
+        options[:html][:style] << "_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src=#{src}, sizingMethod='crop');"
+      end
+      
       options[:html][:class] = options[:html][:class].join(' ')
       options[:html].delete(:class) if options[:html][:class].blank?
 
