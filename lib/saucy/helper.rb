@@ -30,6 +30,10 @@ module Saucy
       style['height']     = "#{real_height}px"
       
       trans = !style.has_key?('background') || style['background'] == "transparent"
+      if options[:transparent] || trans
+        style['_background']    = 'transparent';
+        style['_filter:progid'] = "DXImageTransform.Microsoft.AlphaImageLoader(src=#{src}, sizingMethod='crop')"
+      end
       
       options[:html][:class] << 'saucy'
       if options[:hover]

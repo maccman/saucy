@@ -33,39 +33,31 @@ module Saucy
       }
     }
     
-    class << self    
+    class << self
       def render(name, filename, options = {})
-        style = DEFAULT_STYLE.merge(options[:style] || {})    
+        style = DEFAULT_STYLE.deep_merge(options[:style] || {})    
         
         image = draw(name,  
-                     DEFAULT_STYLE[:font].merge(style[:font]), 
-                     style[:background] || DEFAULT_STYLE[:background], 
-                     DEFAULT_STYLE[:stroke].merge(style[:stroke]),
-                     DEFAULT_STYLE[:spacing].merge(style[:spacing])
+                     style[:font], 
+                     style[:background], 
+                     style[:stroke],
+                     style[:spacing]
                   )
                   
         if options[:hover]
           images  = Magick::ImageList.new
-          style   = DEFAULT_STYLE.merge(options[:hover] || {})
+          style   = DEFAULT_STYLE.deep_merge(options[:hover] || {})
           images << draw(name,  
-                       DEFAULT_STYLE[:font].merge(style[:font]),
-                       style[:background] || DEFAULT_STYLE[:background], 
-                       DEFAULT_STYLE[:stroke].merge(style[:stroke]),
-                       DEFAULT_STYLE[:spacing].merge(style[:spacing])
+                      style[:font], 
+                      style[:background], 
+                      style[:stroke],
+                      style[:spacing]
                     )
           images << image
 
           # Append vertically
           image = images.append(true)
         end
-      
-        # if style[:shadow] && style[:shadow][:render]
-        #   images << shadow_render(image, DEFAULT_STYLE[:shadow].merge(style[:shadow]) )
-        # end
-        # 
-        # if style[:rotate] != 0
-        #   images << rotate_render(image, style[:rotate]) 
-        # end
         
         # Make saucy dir
         FileUtils.mkdir_p(ABS_OUTPUT_DIR)
@@ -116,60 +108,6 @@ module Saucy
       
         rvg.draw.trim
       end
-    
-      def shadow_render(input, shadow)
-        width   = input.columns + shadow[:blur] * 4 + shadow[:left].ab * 2
-        height  = input.rows    + shadow[:blur] * 4 + shadow[:top].abs * 2
-     
-        input.matte = true
-      
-        opacity_color = "rgb(#{shadow[:opacity]},#{shadow[:opacity]},#{shadow[:opacity]})"
-        input_colorized = input.copy.colorize(1.0, 1.0, 1.0, opacity_color)
-      
-        shadow_mask = Magick::Image.new(width, height){
-          self.background_color = '#fff'
-        }
-      
-        zero = [shadow[:left].abs + shadow[:blur], shadow[:top].abs + shadow[:blur]]
-      
-        shadow_mask.composite!(
-          input_colorized, 
-          shadow[:blur], 
-          shadow[:blur], 
-          Magick::OverCompositeOp
-        )
-
-        shadow_mask.matte = true
-        shadow_mask = shadow_mask.blur_image(shadow[:blur], shadow[:blur])
-   
-        output = Magick::Image.new(width, height){
-          self.background_color = shadow[:color]
-        }
-        inverse_shadow_mask = shadow_mask.negate
-        inverse_shadow_mask.matte = false
-
-        output.matte = true
-      
-        output.composite!(
-          inverse_shadow_mask, 
-          zero[0] + shadow[:left], zero[1] + shadow[:top], 
-          Magick::CopyOpacityCompositeOp
-        )
-      
-        output.composite!(
-          input, 
-          zero[0] + shadow[:blur], zero[1] + shadow[:blur], 
-          Magick::OverCompositeOp
-        )
-
-        output.trim
-      end
-
-      def rotate_render(input, angle)
-        input.matte = true
-        input.rotate!(angle)
-        input
-      end
-    end
+    end # self
   end
 end
