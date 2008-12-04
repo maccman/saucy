@@ -35,17 +35,29 @@ module Saucy
     }
     
     class << self    
-      def render(texts, filename, options = {})
+      def render(name, filename, options = {})
         style = DEFAULT_STYLE.merge(options[:style] || {})    
-      
-        images = Magick::ImageList.new
-        texts.each do |text|
-          images << draw(text,  
-                       DEFAULT_STYLE[:font].merge(style[:font]), 
+        
+        image = draw(name,  
+                     DEFAULT_STYLE[:font].merge(style[:font]), 
+                     style[:background] || DEFAULT_STYLE[:background], 
+                     DEFAULT_STYLE[:stroke].merge(style[:stroke]),
+                     DEFAULT_STYLE[:spacing].merge(style[:spacing])
+                  )
+                  
+        if options[:hover]
+          images  = Magick::ImageList.new
+          style   = DEFAULT_STYLE.merge(options[:hover] || {})
+          images << draw(name,  
+                       DEFAULT_STYLE[:font].merge(style[:font]),
                        style[:background] || DEFAULT_STYLE[:background], 
                        DEFAULT_STYLE[:stroke].merge(style[:stroke]),
                        DEFAULT_STYLE[:spacing].merge(style[:spacing])
                     )
+          images << image
+
+          # Append vertically
+          image = images.append(true)
         end
       
         # if style[:shadow] && style[:shadow][:render]
@@ -59,8 +71,7 @@ module Saucy
         # Make saucy dir
         FileUtils.mkdir_p(ABS_OUTPUT_DIR)
         
-        # Append vertically
-        images.append(true).write(File.join(ABS_OUTPUT_DIR, filename))
+        image.write(File.join(ABS_OUTPUT_DIR, filename))
       end
     
       def draw(text, font, background, stroke, spacing)

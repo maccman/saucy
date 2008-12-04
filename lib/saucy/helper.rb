@@ -5,24 +5,17 @@ module Saucy
     # saucy_tag(name, :option1 => 'foo')
     # saucy_tag(name1, name2, :option2 => 'foo', :hover => {:color => 'blue'})
     
-    def saucy_tag(*args, &block)
-      options   = args.extract_options!
-      texts     = args
-      filename  = [
-          Digest::MD5.hexdigest(texts.to_s + options.to_s),
-          texts.collect(&:underscore)
-      ].flatten.join('_') + '.png'
+    def saucy_tag(name, options = {}, &block)
+      filename  = Digest::MD5.hexdigest(name + options.to_s) + '_' + name + '.png'
       
       unless File.exists?(File.join(ABS_OUTPUT_DIR, filename))
-        # Reverse texts so the normal
-        # state is the last one
-        Saucy::Render.render(texts.reverse, filename, options)
+        Saucy::Render.render(name, filename, options)
       end
       
       size = Saucy::Image.cached_png_size(filename)
       # We divide by the number of images to get the height
       # of the first one (for sprites)
-      real_height = (size[1] / args.length)
+      real_height = size[1] / (options[:hover] ? 2 : 1)
       
       src  = File.join(OUTPUT_DIR, filename)
       src  = "'#{src}'"
@@ -39,7 +32,7 @@ module Saucy
       trans = !style.has_key?('background') || style['background'] == "transparent"
       
       options[:html][:class] << 'saucy'
-      if texts.length > 1
+      if options[:hover]
         options[:html][:class] << 'saucySprite'
       end
       
@@ -55,7 +48,7 @@ module Saucy
       if block_given?
         concat(content_tag(options[:tag] || :a, capture(&block), options[:html] || {}))
       else
-        content_tag(options[:tag] || :a, options[:content], options[:html] || {})
+        content_tag(options[:tag] || :a, name, options[:html] || {})
       end
     end
 
