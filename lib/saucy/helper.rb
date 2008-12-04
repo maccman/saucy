@@ -6,7 +6,7 @@ module Saucy
     # saucy_tag(name1, :option2 => 'foo', :hover => {:font => {:color => 'blue'}})
     
     def saucy_tag(name, options = {}, &block)      
-      filename  = Digest::MD5.hexdigest(name + options.to_s) + '_' + name + '.png'
+      filename  = Digest::MD5.hexdigest(name + options.to_s) + '_' + name.gsub(/[^a-z0-9]+/i, '_') + '.png'
       
       unless File.exists?(File.join(ABS_OUTPUT_DIR, filename))
         Saucy::Render.render(name, filename, options)
@@ -29,8 +29,7 @@ module Saucy
       style['width']      = "#{size[0]}px"
       style['height']     = "#{real_height}px"
       
-      trans = !style.has_key?('background') || style['background'] == "transparent"
-      if options[:transparent] || trans
+      if options[:transparent]
         style['_background']    = 'transparent';
         style['_filter:progid'] = "DXImageTransform.Microsoft.AlphaImageLoader(src=#{src}, sizingMethod='crop')"
       end

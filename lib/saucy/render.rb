@@ -18,15 +18,6 @@ module Saucy
         :color    => "#000", 
         :inner    => true 
       },
-      :shadow     => {
-        :color    => "#000", 
-        :opacity  => 0.6, 
-        :top      => 2, 
-        :left     => 2, 
-        :blur     => 5.0, 
-        :render   => false 
-      },
-      :rotate     => 0,
       :spacing    => {
         :letter   => 0, 
         :word     => 0
@@ -46,7 +37,7 @@ module Saucy
                   
         if options[:hover]
           images  = Magick::ImageList.new
-          style   = DEFAULT_STYLE.deep_merge(options[:hover] || {})
+          style   = style.deep_merge(options[:hover] || {})
           images << draw(name,  
                       style[:font], 
                       style[:background], 
