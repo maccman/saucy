@@ -49,9 +49,19 @@ module Saucy
 
       
       if block_given?
-        concat(content_tag(options[:tag] || :a, capture(&block), options[:html] || {}))
+        concat(
+          content_tag(
+            options[:tag], 
+            options[:content] || capture(&block), 
+            options[:html]
+          )
+        )
       else
-        content_tag(options[:tag] || :a, name, options[:html] || {})
+        content_tag(
+          options[:tag], 
+          options[:content] || name, 
+          options[:html]
+        )
       end
     end
 
