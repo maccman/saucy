@@ -2,17 +2,19 @@ module Saucy
   class Image
     class << self
       
-      def png_size(file)
-        IO.read(file)[0x10..0x18].unpack('NN')
+      def size(filename)
+        path  = File.join(ABS_OUTPUT_DIR, filename)
+        image = Magick::Image::read(path).first
+        [image.columns, image.rows]
       end
 
-      def cached_png_size(filename)
-        size = Rails.cache.read("saucy:" + filename)
-        unless size
-          size = png_size(File.join(ABS_OUTPUT_DIR, filename))
-          Rails.cache.write("saucy:" + filename, size)
+      def cached_size(filename)
+        sz = Rails.cache.read("saucy:" + filename)
+        unless sz
+          sz = size(filename)
+          Rails.cache.write("saucy:" + filename, sz)
         end
-        size
+        sz
       end
       
     end

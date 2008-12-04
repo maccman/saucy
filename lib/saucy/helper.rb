@@ -3,16 +3,16 @@ module Saucy
     
     # Arguments:
     # saucy_tag(name, :option1 => 'foo')
-    # saucy_tag(name1, name2, :option2 => 'foo', :hover => {:color => 'blue'})
+    # saucy_tag(name1, :option2 => 'foo', :hover => {:font => {:color => 'blue'}})
     
-    def saucy_tag(name, options = {}, &block)
+    def saucy_tag(name, options = {}, &block)      
       filename  = Digest::MD5.hexdigest(name + options.to_s) + '_' + name + '.png'
       
       unless File.exists?(File.join(ABS_OUTPUT_DIR, filename))
         Saucy::Render.render(name, filename, options)
       end
       
-      size = Saucy::Image.cached_png_size(filename)
+      size = Saucy::Image.cached_size(filename)
       # We divide by the number of images to get the height
       # of the first one (for sprites)
       real_height = size[1] / (options[:hover] ? 2 : 1)

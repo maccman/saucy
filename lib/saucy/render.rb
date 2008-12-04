@@ -1,4 +1,3 @@
-require "RMagick" 
 require 'rvg/rvg'
 require 'fileutils'
 
