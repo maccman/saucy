@@ -41,7 +41,7 @@ module Saucy
       
       options[:tag] ||= :a
       # A's need to be display:block for text-indent to work
-      options[:html][:style]['display'] = 'block' if options[:tag] == :a
+      options[:html][:style]['display'] = 'block'
       
       options[:html][:style] = style.collect {|key, value| [key, value].join(':') }.join(';')
       options[:html][:class] = options[:html][:class].join(' ')
