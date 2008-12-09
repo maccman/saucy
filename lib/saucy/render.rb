@@ -62,13 +62,11 @@ module Saucy
       def draw(text, font, background, stroke, spacing)
         lines = text.split("\n")
 
-        width = font[:size] * text.length + stroke[:width] * 2
-        height = (font[:size] * 2 + stroke[:width] * 2) * lines.length
+        width   = (font[:size] * text.length) + (stroke[:width] * 2)
+        height  = (font[:size] * 2 + stroke[:width] * 2) * lines.length
       
         rvg = Magick::RVG.new(width, height) do |canvas|
           canvas.background_fill = background if background != 'transparent'
-        
-          sw = stroke[:width]
           
           styles = {
             :font_size        =>  font[:size], 
@@ -79,8 +77,7 @@ module Saucy
             :glyph_orientation_horizontal => font[:rotate]
           }
           
-          if font[:font]
-            font_file = font[:font]
+          if font_file = font[:font]
             FONT_STORES.each do |store|
               path = File.join(store, font[:font])
               if File.exist?(path)
@@ -90,7 +87,7 @@ module Saucy
             end
             styles[:font] = font_file.inspect
           end
-        
+                  
           if stroke[:width] > 0
             styles.merge!(:stroke => stroke[:color], :stroke_width => stroke[:width])
       	  end
@@ -99,11 +96,11 @@ module Saucy
           y = 0
 
           lines.each do |line|
-            canvas.text(sw,font[:size] + y, line).styles(styles)
+            canvas.text(stroke[:width], font[:size] + y, line).styles(styles)
 
             if stroke[:inner] && stroke[:width] > 1
               inner = styles.merge(:stroke_width => 1, :stroke => font[:color])
-              canvas.text(sw,font[:size] + y, line).styles(inner)
+              canvas.text(stroke[:width], font[:size] + y, line).styles(inner)
             end
             y += line_height
           end
