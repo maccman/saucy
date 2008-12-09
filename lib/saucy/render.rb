@@ -3,7 +3,10 @@ require 'fileutils'
 
 module Saucy
   class Render
-    FONT_STORE = File.join(File.dirname(__FILE__), *%w[ .. .. fonts ])
+    FONT_STORES = [
+      File.join(File.dirname(__FILE__), *%w[ .. .. fonts ]), 
+      File.join(Rails.root, *%w[ lib fonts ])
+    ]
     
     DEFAULT_STYLE = { 
       :background => "transparent",
@@ -66,11 +69,8 @@ module Saucy
           canvas.background_fill = background if background != 'transparent'
         
           sw = stroke[:width]
-        
-          font_file = font[:font].match(/\./) ? File.join(FONT_STORE, font[:font]) : font[:font]
-
+          
           styles = {
-            :font             =>  font_file.inspect,
             :font_size        =>  font[:size], 
             :fill             =>  font[:color], 
             :font_stretch     =>  font[:stretch],
@@ -78,6 +78,18 @@ module Saucy
             :word_spacing     =>  spacing[:word],
             :glyph_orientation_horizontal => font[:rotate]
           }
+          
+          if font[:font]
+            font_file = font[:font]
+            FONT_STORES.each do |store|
+              path = File.join(store, font[:font])
+              if File.exist?(path)
+                font_file = path
+                break
+              end
+            end
+            styles[:font] = font_file.inspect
+          end
         
           if stroke[:width] > 0
             styles.merge!(:stroke => stroke[:color], :stroke_width => stroke[:width])
